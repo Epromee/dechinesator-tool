@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Dechinesator</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC&display=swap" rel="stylesheet2"> 
+        
+    <style>
+
+        /*
+        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC&display=swap');
+        */
+       body{
+        background-color: #000000; /* Цвет фона веб-страницы */   
+        height:100%;
+       } 
+       h1 {
+            color: #FFFFFF;
+            font-size:3vw;
+            text-align: center;
+        }
+       h2 {
+            color: #FFFFFF;
+            font-size:1.5vw;
+            text-align: center;
+        }
+       p {
+            color: #FFFFFF;
+            font-size:1vw;
+        }
+       button {
+          background-color: #111111; /* Green */
+          border: 2px solid #00FF00;
+          color: #00FF00;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 1vw;
+          font-weight: bold;
+        }
+       button:hover {
+          background-color: #00FF00; /* Green */
+          border: 3px solid #00FF00;
+          color: #000000;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 1vw;
+          font-weight: bold;
+        }
+
+        textarea {
+            resize: none;
+            border: 3px solid green;
+
+            background-color: #000000;
+            color: #00FF00;
+            font-size:20px;
+
+           height: 300px;
+           width: 100%;
+
+           /* padding:1%; */
+                   
+            /* stolen from SO https://stackoverflow.com/questions/15855951/how-to-fit-textarea-exactly-inside-a-div-css */ 
+           -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+            -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+            box-sizing: border-box;         /* Opera/IE 8+ */
+        }
+
+        .cnormal {
+            border: 3px solid green;
+            font-size:120px;
+            font-family: 'Noto Sans SC', sans-serif;
+            margin:0;
+        }
+
+        .cbeautiful {
+            border: 3px solid green;
+            font-size:120px;
+            font-family: 'Ma Shan Zheng', cursive;
+            margin:0;
+        }
+        
+    </style>
+
+</head>
+
+<body>
+
+    <h1> &#127464;&#127475; Dechinesator &#127464;&#127475; </h1>
+
+    <script>
+
+        var converter = document.createElement("div");
+
+        function HtmlEncode(s)
+        {
+            converter.innerText = converter.textContent = s;
+            s = converter.innerHTML;
+            return s;
+        }
+        
+        // dictionary of chengyu
+        let chengyu = new Object();
+
+        // get chengyu from a dictionary
+	    var xhr = new XMLHttpRequest();
+	    xhr.open("GET", "https://raw.githubusercontent.com/Epromee/chengyu-dictionary/master/data/chengyu_data.json", true);
+	    xhr.onreadystatechange = function() {
+		    if (xhr.readyState == 4) {
+                let chengyu_data = JSON.parse(xhr.responseText);
+                
+                for (var ch_item of chengyu_data) {
+                    chengyu[HtmlEncode(ch_item.Chinese)] = 1; // TODO: do something with "XXXX, XXXX" rows
+                }
+		    }
+
+            dechinise(); // TODO: check if needs redechinising
+	    }
+	    xhr.send();
+
+        // sample fill
+                
+        chengyu[HtmlEncode("停不下来")] = 1;
+        chengyu[HtmlEncode("不知不觉")] = 1;
+        chengyu[HtmlEncode("千百年来")] = 1;
+        chengyu[HtmlEncode("无人问津")] = 1;
+        chengyu[HtmlEncode("肆意挥霍")] = 1;
+        chengyu[HtmlEncode("无能为力")] = 1;
+
+        function dechinise() {
+
+            let inp = document.getElementById("chinese_text_input").value;
+
+            let outp = '';
+
+            let freq_map = new Object();
+            let max_freq = 1;
+
+            // scan frequencies
+            for (var i = 0; i < inp.length; i++) {
+                
+                let ch = HtmlEncode(inp[i]);
+                
+                if (ch.match(/[\u3400-\u9FBF]/)) {
+                    freq_map[ch] = (freq_map[ch] === undefined ? 0 : (freq_map[ch] + 1));
+                    max_freq = (freq_map[ch] > max_freq ? freq_map[ch] : max_freq);
+                }
+            }
+
+            let last_color = '';
+
+            // depending on frequencies, format the characters
+            for (var i = 0; i < inp.length; i++) {
+                
+                let ch = HtmlEncode(inp[i]);
+                
+                if (ch.match(/[\u3400-\u9FBF]/)) {
+
+                    let rel_freq = freq_map[ch] / max_freq;
+                    rel_freq = 1 - Math.pow(1 - rel_freq, 6);
+
+                    let rel_unfreq = 1 - rel_freq;
+
+                    let euclid_norm = Math.sqrt(rel_freq * rel_freq + rel_unfreq * rel_unfreq);
+
+                    rel_freq /= euclid_norm;
+                    rel_unfreq /= euclid_norm;
+
+                    let freq = (255 * rel_freq | 0);
+
+                    let unfreq = (255 * rel_unfreq | 0);
+                    
+                    let red = '00' + freq.toString(16);
+                    let blue = '00' + unfreq.toString(16);
+
+                    red = red.slice(red.length - 2);
+                    blue = blue.slice(blue.length - 2);
+
+                    let new_color = red + '' + blue + '00';
+
+                    let test_for_chengyu = HtmlEncode(inp[i] + inp[i + 1] + inp[i + 2] + inp[i + 3]);
+
+                    let add_glow = false;
+
+                    if (chengyu[test_for_chengyu] === 1) {
+                        ch = test_for_chengyu;
+                        new_color = 'FFFF00';
+                        i += 3;
+                        add_glow = true;
+                    }
+
+                    if (new_color !== last_color) {
+                        if (last_color !== '')
+                            outp += '</span>';
+                        outp += '<span style="color: #' + new_color + '; ' + (add_glow ? 'text-shadow: 4px 4px 8px #FF8000;' : '') + '">'
+                        last_color = new_color;
+                    }
+                }
+                else {
+                    if (last_color !== '')
+                        outp += '</span>';
+                    last_color = '';
+                }
+                      
+                outp += ch;
+            }
+            
+            if (last_color !== '')
+                outp += '</span>';
+
+            document.getElementById("read_layout").innerHTML = outp;
+        }
+
+        function cbeautifize() {
+            //document.getElementById("read_layout").setAttribute("style", "border: 3px solid green; font-size:5vw; font-family: 'Ma Shan Zheng', cursive; margin:0;");
+            document.getElementById("read_layout").setAttribute("class", "cbeautiful");
+            //document.getElementById("read_layout").classList.toggle('cbeautiful');
+        }
+
+        function cnormalize() {
+            //document.getElementById("read_layout").setAttribute("style", "border: 3px solid green; font-size:5vw; font-family: 'Noto Sans SC', sans-serif; margin:0;");
+            document.getElementById("read_layout").setAttribute("class", "cnormal");
+            //document.getElementById("read_layout").classList.toggle('cnormal');
+        }
+
+    </script>
+
+
+    <div>
+    
+        <div style="float:left; border: 3px solid green; width:100%;">     
+            <div style="float:left; width:29%; position:-webkit-sticky; position:sticky; top:0; border: 3px solid green;">
+
+                <h2> Place your Chinese text here: </h2>
+                <!-- p> Place your text here: </p -->
+                <textarea id="chinese_text_input" oninput="dechinise();" placeholder="Type your Chinese text to read it better"></textarea>
+                <p> Press to read it better: </p>
+                <button type="button" onClick="dechinise();" >UPD</button>
+                <button type="button" onClick="cnormalize();" >NORM</button>
+                <button type="button" onClick="cbeautifize();" >BEAUTY</button>
+
+            </div>   
+
+            <div style="float:right; width:69%; border: 3px solid green;">
+
+                <h2> Read your Chinese text here: </h2>
+                <p id="read_layout"> </p>
+            
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        cnormalize();
+        dechinise();
+    </script>
+
+</body>
+
+</html>
