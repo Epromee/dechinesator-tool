@@ -10,11 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC&display=swap" rel="stylesheet2"> 
         
     <style>
-
-        /*
-        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC&display=swap');
-        */
+	    
        body{
         background-color: #000000; /* Цвет фона веб-страницы */   
         height:100%;
@@ -112,20 +108,21 @@
         let chengyu = new Object();
 
         // get chengyu from a dictionary
-	    var xhr = new XMLHttpRequest();
-	    xhr.open("GET", "https://raw.githubusercontent.com/Epromee/chengyu-dictionary/master/data/chengyu_data.json", true);
-	    xhr.onreadystatechange = function() {
-		    if (xhr.readyState == 4) {
-                let chengyu_data = JSON.parse(xhr.responseText);
-                
-                for (var ch_item of chengyu_data) {
-                    chengyu[HtmlEncode(ch_item.Chinese)] = 1; // TODO: do something with "XXXX, XXXX" rows
-                }
-		    }
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "https://raw.githubusercontent.com/Epromee/chengyu-dictionary/master/data/chengyu_data.json", true);
+	xhr.onreadystatechange = function() {
 
-            dechinise(); // TODO: check if needs redechinising
-	    }
-	    xhr.send();
+		if (xhr.readyState == 4) {
+			let chengyu_data = JSON.parse(xhr.responseText);
+
+			for (var ch_item of chengyu_data) {
+			chengyu[HtmlEncode(ch_item.Chinese)] = 1; // TODO: do something with "XXXX, XXXX" rows
+			}
+		}
+
+		dechinise(); // TODO: check if needs redechinising
+	}
+	xhr.send();
 
         // sample fill
                 
@@ -221,15 +218,11 @@
         }
 
         function cbeautifize() {
-            //document.getElementById("read_layout").setAttribute("style", "border: 3px solid green; font-size:5vw; font-family: 'Ma Shan Zheng', cursive; margin:0;");
             document.getElementById("read_layout").setAttribute("class", "cbeautiful");
-            //document.getElementById("read_layout").classList.toggle('cbeautiful');
         }
 
         function cnormalize() {
-            //document.getElementById("read_layout").setAttribute("style", "border: 3px solid green; font-size:5vw; font-family: 'Noto Sans SC', sans-serif; margin:0;");
             document.getElementById("read_layout").setAttribute("class", "cnormal");
-            //document.getElementById("read_layout").classList.toggle('cnormal');
         }
 
     </script>
