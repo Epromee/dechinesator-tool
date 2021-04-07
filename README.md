@@ -6,7 +6,7 @@ This is a tool which I made for myself to read my Chinese texts in more convenie
 
 ## Frequency analysis:
 
-Characters are highlighted differently depending on their presence frequency in current text. Green - less frequent, red - more frequent.
+Characters are highlighted differently depending on their presence frequency in current text. Green - less frequent, red - more frequent. White - not Chinese character.
 
 ## Use here:
 https://epromee.github.io/dechinesator-tool/
